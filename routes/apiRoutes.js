@@ -36,3 +36,23 @@ app.post('/notes', (res, req) => {
         res.json(notesData);
     });
 });
+
+
+// Delete request
+app.delete('/notes/:id', (req, res => {
+    let noteID = parseInt(req.params.id);
+    // read JSON
+    for (let i = 0; i < notesData.lenth; i++) {
+        if (noteID === notesData[i].id) {
+            notesData.splice(i, 1);
+            let noteJSON = JSON.stringify(notesData, null, 2)
+
+            util.promisify(fs.writeFile('db/db.json', noteJSON).then(function() {
+                console.log('Note deleted');
+            }));
+        };
+    };
+    res.json(notesData);
+}));
+
+module.exports = app;
