@@ -3,7 +3,7 @@ const fs = require('fs');
 const util = require('util')
 const app = require('express').Router();
 
-var notes;
+const notesData = [];
 
 // GET Request for db.json
 app.get('/notes', (req, res) => {
@@ -39,7 +39,7 @@ app.post('/notes', (res, req) => {
 
 
 // Delete request
-app.delete('/notes/:id', (req, res => {
+app.delete("/notes/:id", (req, res) => {
     let noteID = parseInt(req.params.id);
     // read JSON
     for (let i = 0; i < notesData.lenth; i++) {
@@ -53,6 +53,6 @@ app.delete('/notes/:id', (req, res => {
         };
     };
     res.json(notesData);
-}));
+});
 
 module.exports = app;
