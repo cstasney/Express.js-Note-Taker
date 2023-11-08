@@ -1,14 +1,16 @@
 // dependencies + router
 const fs = require('fs');
 const util = require('util')
-const app = require('express').Router();
-const writeFileAsync = util.promisify(fs.writeFile);
-const readFileAsync = util.promisify(fs.readFile);
+const apiRouter = require('express').Router();
+const writeAsync = util.promisify(fs.writeFile);
+const readAsync = util.promisify(fs.readFile);
+
+// empty array to store notes
 let notesData = [];
 
 // GET Request for db.json
-app.get('/notes', (req, res) => {
-    readFileAsync("db/db.json", "utf8").then(function (data) {
+apiRouter.get('/notes', (req, res) => {
+    readAsync("db/db.json", "utf8").then(function (data) {
         // parse data from db.JSON
         notesData = JSON.parse(data);
         res.json(notesData);
@@ -17,8 +19,8 @@ app.get('/notes', (req, res) => {
 });
 
 // POST request
-app.post('/notes', (req, res) => {
-    readFileAsync("db/db.json", "utf8").then(function (data) {
+apiRouter.post('/notes', (req, res) => {
+    readAsync("db/db.json", "utf8").then(function (data) {
         // parse data to get an array of objects
         notesData = JSON.parse(data);
 
@@ -31,7 +33,7 @@ app.post('/notes', (req, res) => {
         notesData.push(newNote);
         notesData = JSON.stringify(notesData)
 
-        writeFileAsync("db/db.json", notesData).then(function (data) {
+        writeAsync("db/db.json", notesData).then(function (data) {
             console.log("Note has been saved to file");
         });
         res.json(notesData);
@@ -40,7 +42,7 @@ app.post('/notes', (req, res) => {
 
 
 // Delete request
-app.delete("/notes/:id", (req, res) => {
+apiRouter.delete("/notes/:id", (req, res) => {
     let selID = parseInt(req.params.id);
     //  Read JSON file
     for (let i = 0; i < notesData.length; i++) {
@@ -48,7 +50,7 @@ app.delete("/notes/:id", (req, res) => {
             notesData.splice(i, 1);
             let noteJSON = JSON.stringify(notesData, null, 2);
 
-            writeFileAsync("db/db.json", noteJSON).then(function () {
+            writeAsync("db/db.json", noteJSON).then(function () {
                 console.log("Note has been deleted.");
             });
         }
@@ -56,4 +58,4 @@ app.delete("/notes/:id", (req, res) => {
     res.json(notesData);
 });
 
-module.exports = app;
+module.exports = apiRouter;
