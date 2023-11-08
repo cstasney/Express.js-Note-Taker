@@ -2,12 +2,13 @@
 const fs = require('fs');
 const util = require('util')
 const app = require('express').Router();
-
-const notesData = [];
+const writeFileAsync = util.promisify(fs.writeFile);
+const readFileAsync = util.promisify(fs.readFile);
+let notesData = [];
 
 // GET Request for db.json
 app.get('/notes', (req, res) => {
-    util.promisify(fs.readFile('db/db.json', "utf8")).then(function (data) {
+    readFileAsync("db/db.json", "utf8").then(function (data) {
         // parse data from db.JSON
         notesData = JSON.parse(data);
         res.json(notesData);
@@ -16,8 +17,8 @@ app.get('/notes', (req, res) => {
 });
 
 // POST request
-app.post('/notes', (res, req) => {
-    util.promisify(fs.readFile('db/db.json', 'utf8')).then(function (data) {
+app.post('/notes', (req, res) => {
+    readFileAsync("db/db.json", "utf8").then(function (data) {
         // parse data to get an array of objects
         notesData = JSON.parse(data);
 
@@ -30,7 +31,7 @@ app.post('/notes', (res, req) => {
         notesData.push(newNote);
         notesData = JSON.stringify(notesData)
 
-        util.promisify(fs.writeFile('db/db.json', 'utf8')).then(function (data) {
+        writeFileAsync("db/db.json", notesData).then(function (data) {
             console.log("Note has been saved to file");
         });
         res.json(notesData);
@@ -40,18 +41,18 @@ app.post('/notes', (res, req) => {
 
 // Delete request
 app.delete("/notes/:id", (req, res) => {
-    let noteID = parseInt(req.params.id);
-    // read JSON
-    for (let i = 0; i < notesData.lenth; i++) {
-        if (noteID === notesData[i].id) {
+    let selID = parseInt(req.params.id);
+    //  Read JSON file
+    for (let i = 0; i < notesData.length; i++) {
+        if (selID === notesData[i].id) {
             notesData.splice(i, 1);
-            let noteJSON = JSON.stringify(notesData, null, 2)
+            let noteJSON = JSON.stringify(notesData, null, 2);
 
-            util.promisify(fs.writeFile('db/db.json', noteJSON).then(function() {
-                console.log('Note deleted');
-            }));
-        };
-    };
+            writeFileAsync("db/db.json", noteJSON).then(function () {
+                console.log("Note has been deleted.");
+            });
+        }
+    }
     res.json(notesData);
 });
 
